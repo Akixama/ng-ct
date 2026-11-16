@@ -1614,7 +1614,7 @@ function drawMenuSprite(canvas, defs, poses, opts = {}) {
 
 /* ================= MENUS ================= */
 const S = { mode:'1p', step:0, picks:[null, null], cursor:0, previewT:0, diff:1, arcade:null };
-try { const v = +localStorage.getItem('ratio-diff'); if (v >= 0 && v <= 2) S.diff = v; } catch (e) {}
+try { const raw = localStorage.getItem('ratio-diff'), v = +raw; if (raw !== null && v >= 0 && v <= 2) S.diff = v; } catch (e) {}
 const solo = () => S.mode !== '2p';
 // CPU skill: Easy / Normal / Hard, ramping up through the arcade ladder
 function cpuSkill() {
