@@ -61,6 +61,8 @@ To run it locally, serve the folder with any static server. For example:
 python -m http.server
 ```
 
+Every push to `main` deploys automatically to https://ratio-fighters.vercel.app through Vercel.
+
 ## Credits
 
 The profile pictures belong to their owners on X and are used here as a fan tribute to those accounts. If you're one of them and want your picture changed or removed, open an issue.
