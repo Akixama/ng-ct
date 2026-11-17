@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="RATIO: a 16-bit street fighter starring five people from the X timeline.">
-<title>Ratio Fighters</title>
+<meta name="description" content="NG-CT: a 16-bit street fighter starring nine people from the X timeline.">
+<title>NG-CT Fighters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
@@ -119,7 +119,7 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pxa" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer></filter></svg>
 <div id="loading">
-  <div class="ld-logo tk">RATIO</div>
+  <div class="ld-logo tk">NG-CT</div>
   <div class="ld-sub">TIMELINE FIGHTERS</div>
   <div class="ld-tip" id="ldTip"></div>
   <div class="ld-bottom">
@@ -155,7 +155,7 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
 
 <section id="title" class="screen">
   <div class="wrap">
-    <div class="logo"><h1 class="tk">RATIO</h1><p>TIMELINE FIGHTERS</p></div>
+    <div class="logo"><h1 class="tk">NG-CT</h1><p>TIMELINE FIGHTERS</p></div>
     <div class="lineup-wrap"><canvas id="lineupBg" class="px" width="720" height="220"></canvas><canvas id="lineup" class="px spr" width="720" height="220"></canvas></div>
     <div class="menu">
       <button class="btn" data-mode="arcade">ARCADE</button>
@@ -1175,7 +1175,7 @@ function buildStage() {
   box('#5d6168', 836, 0, 11, wallBot); box('#8a9099', 838, 0, 3, wallBot); for (let y = 60; y < wallBot; y += 70) box('#45484e', 832, y, 19, 5);
   // graffiti
   const tag = (txt, x, y, size, col, rotA) => { b.save(); b.translate(x, y); b.rotate(rotA); b.font = `700 ${size}px Teko, Impact, sans-serif`; b.lineJoin = 'round'; b.lineWidth = 8; b.strokeStyle = '#1b1020'; b.strokeText(txt, 0, 0); b.lineWidth = 3; b.strokeStyle = '#fff'; b.strokeText(txt, 0, 0); b.fillStyle = col; b.fillText(txt, 0, 0); b.restore(); };
-  tag('RATIO', 600, 300, 72, '#ff2d75', -.06); tag('gm', 940, 210, 54, '#39d98a', .05); tag('wagmi?', 450, 370, 30, '#5ab0ff', -.1);
+  tag('NG-CT', 600, 300, 72, '#ff2d75', -.06); tag('gm', 940, 210, 54, '#39d98a', .05); tag('wagmi?', 450, 370, 30, '#5ab0ff', -.1);
   // sidewalk + curb
   box('#a6a6a1', 0, wallBot, BW, walkBot - wallBot); box('#8b8b86', 0, wallBot, BW, 3);
   for (let x = 30; x < BW; x += 64) box('#8e8e89', x, wallBot + 3, 2, walkBot - wallBot - 3);

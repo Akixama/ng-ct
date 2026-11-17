@@ -1,4 +1,4 @@
-# RATIO — Timeline Fighters
+# NG-CT — Timeline Fighters
 
 A 16-bit street fighting game starring nine people from the X timeline. Every fighter's head is their profile picture, and every move is built from what they actually post.
 
