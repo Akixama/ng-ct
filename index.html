@@ -437,8 +437,36 @@ const FORMS = {
   // Making It Big: he made it, so everything turns gold
   hate: { on: f => f.big > 0, scale: 1, aura: [242, 193, 78], tint: [[60, 34, 6], [212, 160, 40], [255, 246, 190]],
     style: { top:'#f6f2e4', jacket:'#d4a72c', sleeve:'#d4a72c', fore:'#d4a72c', pants:'#c4961f', shoes:'#f6f2e4', glove:'#fff3b0', belt:'#7a5a12', chain:true, trim:'#fff3b0' } },
+  // Doctor's Orders: in scrubs and a white coat, the doctor is in
+  skroot: { timed: true, name: 'THE DOCTOR IS IN', scale: 1, aura: [70, 230, 150], fx: 'cross', tint: [[8, 34, 28], [60, 175, 135], [225, 255, 240]],
+    style: { top:'#3fbf8f', jacket:'#f4f7f6', sleeve:'#f4f7f6', fore:'#f4f7f6', pants:'#3fbf8f', shoes:'#f4f7f6', coat:{ col:'#f4f7f6', lining:'#3fbf8f', len:44 }, tie:false, glove:'#bff5df' } },
+  // Giveaway Rain: full jackpot, red and gold
+  promise: { timed: true, name: 'JACKPOT MODE', scale: 1, aura: [255, 207, 51], fx: 'coin', tint: [[60, 8, 20], [225, 50, 60], [255, 228, 140]],
+    style: { top:'#ffcf33', sleeve:'#ffcf33', fore:'#ffcf33', wrap:'#d62a2a', pants:'#b3202a', shoes:'#ffcf33', sash:'#b3202a', glove:'#ffcf33', coat:{ col:'#ffcf33', lining:'#b3202a', len:48 } } },
+  // 50x Long: everything turns green, candles all the way up
+  dave: { timed: true, name: 'FULL PORT LONG', scale: 1.05, aura: [57, 255, 122], fx: 'candle', tint: [[4, 30, 12], [50, 200, 90], [215, 255, 200]],
+    style: { top:'#dfffe6', jacket:'#1f9e4a', sleeve:'#1f9e4a', fore:'#1f9e4a', pants:'#18803b', shoes:'#39ff7a', tieCol:'#39ff7a', glove:'#39ff7a', chain:true } },
+  // Force Push: full Sakura bloom
+  milla: { timed: true, name: 'SAKURA BLOOM', scale: 1, aura: [255, 140, 190], fx: 'petal', tint: [[45, 10, 40], [235, 110, 170], [255, 232, 245]],
+    style: { top:'#ffd1e6', jacket:'#ff7fb6', sleeve:'#ff7fb6', fore:'#ff7fb6', pants:'#c2477f', shoes:'#ffd1e6', trim:'#ffffff', glove:'#ffd1e6' } },
+  // 7 Trench Warriors: trench general in camo
+  exit: { timed: true, name: 'TRENCH GENERAL', scale: 1.05, aura: [255, 140, 66], fx: 'ember', tint: [[22, 26, 10], [125, 140, 70], [245, 240, 200]],
+    style: { top:'#5d6b34', sleeve:'#5d6b34', fore:'#4a552a', pants:'#3f4824', shoes:'#2a2a1a', stripe:'#ff8c42', glove:'#2a2a1a', belt:'#2a2a1a', cape:{ col:'#8a2a1a', len:62 } } },
+  // End Of The World: the armour goes molten
+  ev: { timed: true, name: 'DOOMSDAY', scale: 1.08, aura: [255, 90, 40], fx: 'ember', tint: [[30, 0, 0], [205, 45, 20], [255, 210, 120]],
+    style: { top:'#3a0d08', sleeve:'#5a1a10', fore:'#5a1a10', pants:'#3a0d08', shoes:'#ff6a2a', glove:'#ff6a2a', belt:'#ff6a2a', cape:{ col:'#1a0604', len:64 } } },
+  // Calm: still and glowing, the world slows around him
+  karo: { timed: true, name: 'INNER CALM', scale: 1, aura: [154, 167, 255], fx: 'ring', tint: [[16, 16, 44], [110, 122, 225], [236, 240, 255]],
+    style: { top:'#f4f6ff', sleeve:'#f4f6ff', fore:'#f4f6ff', pants:'#7f8cff', shoes:'#f4f6ff', stripe:'#ffffff', glove:'#c9d0ff' } },
 };
-for (const [id, F] of Object.entries(FORMS)) F.key = id + '*';
+for (const [id, F] of Object.entries(FORMS)) {
+  F.key = id + '*';
+  if (F.timed) F.on = f => f.formT > 0;
+  // the neck matches the recoloured head
+  const n = F.tint[1].map((v, k) => Math.round(v + (F.tint[2][k] - v) * .45));
+  F.style.neck = '#' + n.map(v => v.toString(16).padStart(2, '0')).join('');
+  F.col = '#' + F.aura.map(v => v.toString(16).padStart(2, '0')).join('');
+}
 function formDef(f) {
   const F = FORMS[f.id]; if (!F || !F.on(f)) return null;
   if (!F.def) F.def = Object.assign({}, f.def, { style: Object.assign({}, f.def.style, F.style), headKey: F.key });
@@ -900,7 +928,7 @@ class Fighter {
   reset() {
     Object.assign(this, { x: this.side === 0 ? W / 2 - 100 : W / 2 + 100, y:GROUND, vx:0, vy:0, facing: this.side === 0 ? 1 : -1,
       hp:this.maxHp, hpShow:this.maxHp, atk:null, stun:0, stunType:null, blocking:false, state:'idle', koT:0, t:0, walkPhase:0,
-      lockin:0, sleep:0, invuln:0, revived:false, win:false, buf:null, bufT:0, combo:0, diamond:0, bag:0, bagBonus:0, shield:0, knock:0, knockMax:0, ape:0, big:0, calm:0, lowkey:0, alphaT:360, alphaReady:false, dashT:0, dashDir:0, prevDir:0, tapDir:0, tapT:-99, pose:clonePose(BASE()) });
+      lockin:0, sleep:0, invuln:0, revived:false, win:false, buf:null, bufT:0, combo:0, diamond:0, bag:0, bagBonus:0, shield:0, knock:0, knockMax:0, ape:0, big:0, calm:0, lowkey:0, formT:0, alphaT:360, alphaReady:false, dashT:0, dashDir:0, prevDir:0, tapDir:0, tapT:-99, pose:clonePose(BASE()) });
   }
   hurtBox() { const b = this.big > 0 ? 1.3 : 1; return { x:this.x - 20 * b, y:this.y - 132 * b, w:40 * b, h:132 * b }; }
   dmgMult() { return (this.lockin > 0 ? 1.4 : 1) * (this.big > 0 ? 1.5 : 1); }
@@ -911,6 +939,7 @@ class Fighter {
     if (this.invuln > 0) this.invuln--;
     if (this.knock > 0) this.knock--;
     if (this.ape > 0) this.ape--;
+    if (this.formT > 0 && --this.formT === 0) transformFx(this, '#c9c4cf', true);
     if (this.lowkey > 0 && --this.lowkey === 0) floatText(this.x, this.y - 175, 'BACK IN VIEW', '#b9b9c6', 22);
     if (this.calm > 0) this.calm--;
     if (this.big > 0 && --this.big === 0) { floatText(this.x, this.y - 175, 'BACK TO NORMAL', '#f2c14e', 22); transformFx(this, '#f2c14e', true); }
@@ -1006,6 +1035,7 @@ class Fighter {
       }
     } else if (a.t === a.su) {
       ({ special:SPECIALS, special2:SPECIALS2, super:SUPERS })[a.kind][this.id](this, o);
+      if (a.kind === 'super' && FORMS[this.id] && FORMS[this.id].timed) { const F = FORMS[this.id]; this.formT = 360; transformFx(this, F.col); floatText(this.x, this.y - 215, F.name, F.col, 24); }
       if (!this.atk) return;
     }
     // dashing moves (Exit's cape dash, Ev's flying kick) hit once along the way
@@ -1431,6 +1461,22 @@ function drawOver(c, f) {
     c.save(); c.strokeStyle = '#bffcff'; c.lineWidth = 1.6; c.globalAlpha = .9;
     for (let k = 0; k < 2; k++) { let x = f.x + (Math.random() - .5) * 50, y = f.y - 20 - Math.random() * 120; c.beginPath(); c.moveTo(x, y);
       for (let j = 0; j < 4; j++) { x += (Math.random() - .5) * 18; y -= 6 + Math.random() * 8; c.lineTo(x, y); } c.stroke(); }
+    c.restore();
+  }
+  const F = formDef(f);
+  if (F && F.fx) {
+    c.save();
+    for (let i = 0; i < 6; i++) {
+      const k = ((f.t + i * 17) % 100) / 100, sw = Math.sin(f.t * .06 + i * 2.3);
+      const x = f.x + (i - 2.5) * 16 + sw * 8, y = f.y - 20 - k * 150;
+      c.globalAlpha = Math.min(1, (1 - k) * 1.6);
+      if (F.fx === 'cross') { c.fillStyle = OUT; c.fillRect(x - 5, y - 2, 10, 5); c.fillRect(x - 2, y - 5, 5, 10); c.fillStyle = '#7dffbf'; c.fillRect(x - 4, y - 1, 8, 3); c.fillRect(x - 1, y - 4, 3, 8); }
+      else if (F.fx === 'coin') { c.fillStyle = OUT; c.beginPath(); c.ellipse(x, y, 5 * Math.abs(sw) + 1.5, 6, 0, 0, 7); c.fill(); c.fillStyle = '#ffcf33'; c.beginPath(); c.ellipse(x, y, 4 * Math.abs(sw) + .8, 4.8, 0, 0, 7); c.fill(); }
+      else if (F.fx === 'candle') { c.fillStyle = OUT; c.fillRect(x - 3.5, y - 9, 7, 18); c.fillRect(x - .8, y - 13, 1.6, 26); c.fillStyle = '#39ff7a'; c.fillRect(x - 2.2, y - 7.7, 4.4, 15.4); }
+      else if (F.fx === 'petal') { c.save(); c.translate(x, y); c.rotate(f.t * .05 + i); c.fillStyle = '#ffb3d1'; c.beginPath(); c.ellipse(0, 0, 4.5, 2.4, 0, 0, 7); c.fill(); c.fillStyle = '#fff0f6'; c.fillRect(-1, -1, 2, 2); c.restore(); }
+      else if (F.fx === 'ember') { c.fillStyle = i % 2 ? '#ffd27a' : F.col; c.fillRect(x - 1.5, y - 1.5, 3, 3); }
+      else if (F.fx === 'ring') { c.strokeStyle = '#c9d0ff'; c.lineWidth = 1.5; c.beginPath(); c.arc(x, y, 3 + k * 6, 0, 7); c.stroke(); }
+    }
     c.restore();
   }
   if (f.big > 0) {
@@ -2066,7 +2112,7 @@ function loop(now) {
   $('#ldTxt').textContent = 'READY'; $('#loading').classList.add('done'); setTimeout(() => $('#loading').remove(), 400);
   show('title');
   requestAnimationFrame(loop);
-  if (location.hash === '#debug') window.RT = { G, S, startGame, ROSTER, step, render, renderHUD, pressed, keys, drawMenuSprite, POSES, clonePose, BASE, menuFrame, drawSprite, HEADS, bg, RS, GROUND, BG_TOP, AUD, PORTRAITS };
+  if (location.hash === '#debug') window.RT = { FORMS, formDef, G, S, startGame, ROSTER, step, render, renderHUD, pressed, keys, drawMenuSprite, POSES, clonePose, BASE, menuFrame, drawSprite, HEADS, bg, RS, GROUND, BG_TOP, AUD, PORTRAITS };
 })();
 })();
 </script>
