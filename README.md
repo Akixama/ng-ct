@@ -10,7 +10,7 @@ A 16-bit street fighting game starring nine people from the X timeline. Every fi
 - **VS CPU**: one fight against the CPU on Easy, Normal or Hard.
 - **2 Players**: two people on one keyboard.
 
-Fights are best of three, with 99-second rounds.
+Fights are best of three, with 99-second rounds. The game has synthesized sound effects and two original chiptune tracks; music and SFX can be toggled on the title and pause screens, and `M` mutes everything.
 
 ## Controls
 
@@ -43,7 +43,7 @@ On phones, on-screen buttons appear during a fight.
 | **Milla** @millw11488 | Merry Men Volley | Sakura Bloom | Force Push | Audited |
 | **Hate** @hate_ofx | Going Lowkey | Ape Big | Making It Big | Never Give Up |
 | **Exit Liquidity** @exittliquidity | Cape Dash | New Toy | 7 Trench Warriors | Exit Liquidity |
-| **Ev** @xeverade | BTC To 69k? | Wasted | End Of The World | Knows Alpha |
+| **XEV** @xeverade | BTC To 69k? | Wasted | End Of The World | Knows Alpha |
 | **Karo** @karoblaq | Click Click Click | Chicken Change | Calm | Never Stop Clicking |
 
 Every fighter also has five stats (Health, Speed, Power, Defense, Meter gain), and each one changes how much damage they deal, take and how fast their meter fills. The character select screen in the game shows full descriptions and damage numbers.
