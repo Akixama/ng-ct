@@ -263,7 +263,7 @@ const ROSTER = [
     passive:{ name:'Knows What To Do', desc:'Never panics. He shakes off every hit 35% faster than anyone else.' },
     special:{ name:'Callout', desc:'His glowing eye fires a cyan crescent across the street. 9 damage.' },
     special2:{ name:'Diamond Hands', desc:'Holds the bag through the dip. For 2.5 seconds nothing staggers him and he takes half damage. Everything he soaked up is added to his next hit (up to +20).' },
-    super:{ name:'18-Hour Lock-In', desc:'6 seconds of +40% damage and +30% speed. Then the 4-hour nap hits and he is slowed for 2 seconds.' } },
+    super:{ name:'18-Hour Lock-In', desc:'He transforms: fully awakened, glowing cyan. 6 seconds of +40% damage and +30% speed. Then the 4-hour nap hits and he is slowed for 2 seconds.' } },
   { id:'skroot', name:'SKROOT', handle:'@skrootimburg', title:'Still The Dr.', hp:90, speed:3.9, stats:{ power:3, defense:4, meter:3 }, color:'#e9e9e9',
     pfp:'pfp/skroot.jpg',
     head:{ h:43, poly:[[185,95],[270,92],[290,150],[335,185],[330,205],[300,215],[305,260],[300,300],[285,335],[240,350],[200,345],[175,320],[170,280],[172,230],[160,212],[125,200],[128,185],[170,165]], bust:[[185,95],[270,92],[290,150],[335,185],[330,205],[300,215],[305,260],[300,300],[300,335],[345,360],[365,400],[190,400],[180,340],[175,320],[170,280],[172,230],[160,212],[125,200],[128,185],[170,165]] }, port:[110,70,240],
@@ -319,7 +319,7 @@ const ROSTER = [
     passive:{ name:'Never Give Up', desc:'Under 30% HP his meter fills twice as fast.' },
     special:{ name:'Going Lowkey', desc:'He goes lowkey and nearly vanishes for 4 seconds. Projectiles pass straight through him, and his first hit out of the shadows does +50%.' },
     special2:{ name:'Ape Big', desc:'Apes in for 3 seconds. If his next hit lands it DOUBLES. If he gets hit first, he LOST IT ALL and takes 8 extra damage.' },
-    super:{ name:'Making It Big', desc:'From chasing airdrops to making it. He grows huge for 6 seconds: bigger reach, +50% damage, and nothing staggers him.' } },
+    super:{ name:'Making It Big', desc:'He made it. He transforms into his gold, rich form and grows huge for 6 seconds: bigger reach, +50% damage, and nothing staggers him.' } },
   { id:'exit', name:'EXIT LIQUIDITY', handle:'@exittliquidity', title:'Trench Savior', hp:100, speed:4.1, stats:{ power:3, defense:4, meter:3 }, color:'#ff8c42',
     pfp:'pfp/exit.jpg',
     head:{ h:42, poly:[[120,40],[190,22],[260,35],[300,80],[312,150],[330,170],[328,250],[305,275],[295,330],[260,380],[200,398],[140,385],[105,335],[95,280],[70,260],[62,180],[90,160],[95,90]] }, port:[60,40,300],
@@ -373,7 +373,7 @@ function stepDown(im, sx, sy, sw, sh, tw) {
 }
 // Cut the head out of their profile picture along its real outline, then give it the
 // same treatment as the body sprite: hard edges, a 15-bit palette and a dark outline.
-function makeHead(def, im) {
+function makeHead(def, im, tint) {
   const H = def.head, HP = H.poly, P = H.bust || HP;
   const hys = HP.map(p => p[1]), s = H.h * HS / (Math.max(...hys) - Math.min(...hys));
   const xs = P.map(p => p[0]), ys = P.map(p => p[1]);
@@ -392,6 +392,11 @@ function makeHead(def, im) {
     if (a[i + 3] < 128) { a[i + 3] = 0; continue; }
     a[i + 3] = 255;
     for (let k = 0; k < 3; k++) a[i + k] = Math.max(0, Math.min(255, (a[i + k] - 128) * (H.contrast || 1.12) + 128 + (H.bright || 0))) & 0xF8;
+    if (tint) {
+      // transformed: the same picture, recoloured through the form's three-tone palette
+      const l = (a[i] * .3 + a[i + 1] * .59 + a[i + 2] * .11) / 255, [lo, hi, u] = l < .5 ? [tint[0], tint[1], l * 2] : [tint[1], tint[2], l * 2 - 1];
+      for (let k = 0; k < 3; k++) a[i + k] = (lo[k] + (hi[k] - lo[k]) * u) & 0xF8;
+    }
   }
   mx.putImageData(img, 0, 0);
   // silhouette for the outline
@@ -422,6 +427,22 @@ function makePortrait(def, im) {
   if (im) { const k = im.naturalWidth / 400, [sx, sy, s] = def.port; x.imageSmoothingQuality = 'high'; x.drawImage(im, sx * k, sy * k, s * k, s * k, 0, 0, 200, 200); }
   else { x.fillStyle = def.color; x.fillRect(0, 0, 200, 200); }
   return c;
+}
+
+/* ================= TRANSFORMATIONS (a new look while a super is running) ================= */
+const FORMS = {
+  // 18-Hour Lock-In: fully awakened, everything goes dark with cyan power running through it
+  onepeter: { on: f => f.lockin > 0, scale: 1.1, aura: [95, 244, 255], tint: [[6, 14, 24], [40, 150, 190], [215, 255, 255]],
+    style: { top:'#0a1a20', jacket:'#060c10', sleeve:'#060c10', fore:'#060c10', pants:'#05090c', shoes:'#5ff4ff', coat:{ col:'#060c10', lining:'#5ff4ff', len:54 }, glove:'#5ff4ff', trim:'#5ff4ff' } },
+  // Making It Big: he made it, so everything turns gold
+  hate: { on: f => f.big > 0, scale: 1, aura: [242, 193, 78], tint: [[60, 34, 6], [212, 160, 40], [255, 246, 190]],
+    style: { top:'#f6f2e4', jacket:'#d4a72c', sleeve:'#d4a72c', fore:'#d4a72c', pants:'#c4961f', shoes:'#f6f2e4', glove:'#fff3b0', belt:'#7a5a12', chain:true, trim:'#fff3b0' } },
+};
+for (const [id, F] of Object.entries(FORMS)) F.key = id + '*';
+function formDef(f) {
+  const F = FORMS[f.id]; if (!F || !F.on(f)) return null;
+  if (!F.def) F.def = Object.assign({}, f.def, { style: Object.assign({}, f.def.style, F.style), headKey: F.key });
+  return F;
 }
 
 /* ================= SPRITE DRAWING (16-bit, cel-shaded) ================= */
@@ -594,7 +615,7 @@ function drawSprite(c, def, P, t, vx = 0) {
   c.fillStyle = OUT; c.fillRect(nk[0] - 6, nk[1] - 12, 12, 15);
   c.fillStyle = nc; c.fillRect(nk[0] - 4.5, nk[1] - 12, 9, 14);
   c.fillStyle = shade(nc, -.3); c.fillRect(nk[0] - 4.5, nk[1] - 12, 3, 14);
-  const head = HEADS[def.id];
+  const head = HEADS[def.headKey || def.id];
   const drawHead = () => {
     if (!head) return;
     c.save(); c.translate(neck[0], neck[1] + 2); c.rotate(lean * .45 + (P.tilt || 0));
@@ -805,6 +826,14 @@ const RUNNERS = new Set(['floki', 'wif', 'car', 'warrior', 'btc']);
 // stat tiers 1-5: damage dealt, damage taken, meter gained
 const POW = [0, .9, .95, 1, 1.07, 1.14], DEFN = [0, 1.1, 1.05, 1, .94, .88], MET = [0, .85, .92, 1, 1.1, 1.2];
 const overlap = (x, y, w, h, b) => x < b.x + b.w && x + w > b.x && y < b.y + b.h && y + h > b.y;
+// the flash + smoke burst when someone changes form (and when they change back)
+function transformFx(f, col, back) {
+  G.flashes.push({ x:f.x, y:f.y - 70, t:0, s:back ? 1.2 : 2.2, col });
+  if (!back) { G.flash = Math.max(G.flash, 6); G.bursts.push({ x:f.x, y:f.y - 70, t:0, col, big:true }); }
+  sparks(f.x, f.y - 70, col, back ? 10 : 26, back ? 4 : 7);
+  for (let i = 0; i < 14; i++) G.parts.push({ x:f.x + (Math.random() - .5) * 50, y:f.y - Math.random() * 120, vx:(Math.random() - .5) * 2, vy:-1 - Math.random() * 2, life:30, col:back ? '#c9c4cf' : '#ffffff' });
+  sfx(back ? 'whiff' : 'special');
+}
 function sparks(x, y, col, n = 8, sp = 5) {
   for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, s = Math.random() * sp + 1; G.parts.push({ x, y, vx:Math.cos(a) * s, vy:Math.sin(a) * s - 1, life:16 + (Math.random() * 12 | 0), col }); }
 }
@@ -849,13 +878,13 @@ const SPECIALS2 = {
     proj({ kind:'petals', owner:f, target:o, x:f.x + f.facing * 40, y:f.y - 70, vx:f.facing * 4.2, w:60, h:110, dmg:3, kb:2, stun:13, hits:3, hitGap:12, pierce:true, life:150, meter:3, petal:true }); },
 };
 const SUPERS = {
-  hate:     f => { f.big = 360; floatText(f.x, f.y - 200, 'MAKING IT BIG', '#f2c14e', 36); G.shake = 10; },
+  hate:     f => { f.big = 360; floatText(f.x, f.y - 200, 'MAKING IT BIG', '#f2c14e', 36); G.shake = 10; transformFx(f, '#ffe27a'); },
   exit:     (f, o) => { floatText(f.x, f.y - 190, '1 SOL TO 7 TRENCH WARRIORS', '#ff8c42', 26);
     for (let i = 0; i < 7; i++) proj({ kind:'warrior', variant:i % 3, owner:f, target:o, x:f.facing > 0 ? G.camX - 40 : G.camX + VIEW_W + 40, y:GROUND - 28, vx:f.facing * 8.5, delay:i * 9, w:28, h:56, dmg:4, kb:3, stun:13, meter:2 }); },
   ev:       (f, o) => { G.dark = 150; floatText(o.x, o.y - 200, 'NICE TO MEET YOU GUYS', '#ff6a5a', 28);
     for (let i = 0; i < 4; i++) proj({ kind:'meteor', track:(i - 1.5) * 36, owner:f, target:o, x:o.x, y:G.camY - 40, vx:f.facing * -1.5, vy:5, g:.3, w:30, h:30, dmg:8, kb:5, stun:18, delay:i * 14 + 10, anyDir:true, meter:3 }); },
   karo:     (f, o) => { f.calm = 300; floatText(f.x, f.y - 190, 'CALM', '#9aa7ff', 44); },
-  onepeter: f => { f.lockin = 360; f.sleep = 0; floatText(f.x, f.y - 175, 'LOCKED IN', '#ff3355', 36); },
+  onepeter: f => { f.lockin = 360; f.sleep = 0; floatText(f.x, f.y - 175, 'LOCKED IN', '#5ff4ff', 36); transformFx(f, '#5ff4ff'); },
   skroot:   f => { const h = Math.min(25, f.maxHp - f.hp); f.hp += h; f.hpShow = Math.max(f.hpShow, f.hp); floatText(f.x, f.y - 175, '+' + Math.round(h) + ' HP · PRESCRIBED', '#39ffa0', 28); sparks(f.x, f.y - 70, '#39ffa0', 22, 4); },
   promise:  (f, o) => { floatText(o.x, o.y - 200, 'LIKE · RT · FOLLOW', '#ffcf33', 30);
     for (let i = 0; i < 8; i++) proj({ kind:'coin', rain:true, track:(Math.random() - .5) * 120, owner:f, target:o, x:o.x, y:G.camY - 30, vx:0, vy:2, g:.32, w:26, h:26, dmg:4, kb:1, stun:12, delay:i * 9, meter:2, anyDir:true }); },
@@ -884,14 +913,14 @@ class Fighter {
     if (this.ape > 0) this.ape--;
     if (this.lowkey > 0 && --this.lowkey === 0) floatText(this.x, this.y - 175, 'BACK IN VIEW', '#b9b9c6', 22);
     if (this.calm > 0) this.calm--;
-    if (this.big > 0 && --this.big === 0) floatText(this.x, this.y - 175, 'BACK TO NORMAL', '#f2c14e', 22);
+    if (this.big > 0 && --this.big === 0) { floatText(this.x, this.y - 175, 'BACK TO NORMAL', '#f2c14e', 22); transformFx(this, '#f2c14e', true); }
     if (this.id === 'ev' && !this.alphaReady && --this.alphaT <= 0) { this.alphaReady = true; this.alphaT = 360; }
     if (this.diamond > 0 && --this.diamond === 0) {
       this.bagBonus = Math.min(20, Math.round(this.bag));
       if (this.bagBonus > 0) floatText(this.x, this.y - 175, 'BAG READY +' + this.bagBonus, '#9fe8ff', 26);
     }
     if (this.shield > 0) this.shield--;
-    if (this.lockin > 0) { if (--this.lockin === 0) { this.sleep = 120; floatText(this.x, this.y - 175, '4-HOUR NAP', '#9ac8ff', 28); } }
+    if (this.lockin > 0) { if (--this.lockin === 0) { this.sleep = 120; floatText(this.x, this.y - 175, '4-HOUR NAP', '#9ac8ff', 28); transformFx(this, '#9ac8ff', true); } }
     else if (this.sleep > 0) this.sleep--;
     if (inp) for (const k of ['super','special','heavy','light']) if (inp[k]) {
       const fwd = this.facing > 0 ? inp.right : inp.left, near = Math.abs(o.x - this.x) < 60 && o.y >= GROUND && o.state !== 'ko' && !(o.knock > 0);
@@ -1359,7 +1388,18 @@ function poseFor(f) {
 function drawUnder(c, f) {
   const sh = Math.max(.4, 1 - (GROUND - f.y) / 200);
   c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(f.x, GROUND + 2, 26 * sh, 5 * sh, 0, 0, 7); c.fill();
-  if (f.lockin > 0) { const g = c.createRadialGradient(f.x, f.y - 70, 5, f.x, f.y - 70, 80); g.addColorStop(0, 'rgba(255,40,70,.45)'); g.addColorStop(1, 'rgba(255,40,70,0)'); c.fillStyle = g; c.fillRect(f.x - 80, f.y - 150, 160, 160); }
+  const F = formDef(f);
+  if (F) {
+    const [r, gg, b] = F.aura, sc = f.big > 0 ? 1.3 : F.scale;
+    c.save(); c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(f.x, f.y - 70 * sc, 5, f.x, f.y - 70 * sc, 90 * sc); g.addColorStop(0, `rgba(${r},${gg},${b},.4)`); g.addColorStop(1, `rgba(${r},${gg},${b},0)`); c.fillStyle = g; c.fillRect(f.x - 90 * sc, f.y - 170 * sc, 180 * sc, 180 * sc);
+    for (let i = 0; i < 9; i++) {
+      const u = i / 8 - .5, x = f.x + u * 62 * sc, h = (60 + 50 * (1 - Math.abs(u) * 2) + Math.sin(f.t * .35 + i * 2.1) * 16) * sc, w = 9 * sc;
+      c.fillStyle = `rgba(${r},${gg},${b},${.16 + .06 * Math.sin(f.t * .5 + i)})`;
+      c.beginPath(); c.moveTo(x - w, f.y); c.quadraticCurveTo(x - w * .6, f.y - h * .5, x + Math.sin(f.t * .2 + i) * 6, f.y - h); c.quadraticCurveTo(x + w * .6, f.y - h * .5, x + w, f.y); c.fill();
+    }
+    c.restore();
+  }
   if (f.calm > 0) { const o = f === G.f1 ? G.f2 : G.f1; c.fillStyle = 'rgba(130,150,255,.25)'; c.beginPath(); c.ellipse(o.x, o.y - 66, 40, 80, 0, 0, 7); c.fill(); }
   if (f.ape > 0) { c.fillStyle = 'rgba(242,193,78,.3)'; c.beginPath(); c.ellipse(f.x, f.y - 66, 38, 78, 0, 0, 7); c.fill(); }
   if (f.diamond > 0) { const g = c.createRadialGradient(f.x, f.y - 70, 5, f.x, f.y - 70, 70); g.addColorStop(0, 'rgba(160,230,255,.35)'); g.addColorStop(1, 'rgba(160,230,255,0)'); c.fillStyle = g; c.fillRect(f.x - 70, f.y - 140, 140, 140); }
@@ -1368,7 +1408,8 @@ function drawUnder(c, f) {
 function drawFighter(f) {
   const c = ctx;
   const [tgt, rate] = poseFor(f); lerpPose(f.pose, tgt, rate);
-  const bs = f.big > 0 ? Math.min(1.3, 1 + (360 - f.big) / 40 * .3, 1 + f.big / 30 * .3) : 1;
+  const F = formDef(f);
+  const bs = (f.big > 0 ? Math.min(1.3, 1 + (360 - f.big) / 40 * .3, 1 + f.big / 30 * .3) : 1) * (F ? F.scale : 1);
   c.save(); c.translate(f.x, f.y); c.scale(f.facing * bs, bs);
   let fall = 0;
   if (f.state === 'ko') fall = Math.min(1, f.koT / 16);
@@ -1376,7 +1417,8 @@ function drawFighter(f) {
   if (fall) { c.translate(0, -4 * fall); c.rotate(-Math.PI / 2 * fall); }
   if (f.invuln > 0 && (f.t >> 2) % 2) c.globalAlpha = .45;
   if (f.lowkey > 0) c.globalAlpha = .22 + Math.sin(f.t * .2) * .05;
-  drawSprite(c, f.def, f.pose, f.t, f.vx * f.facing);
+  if (F) drawSprite(c, F.def, Object.assign({}, f.pose, { glow: 1 }), f.t, f.vx * f.facing);
+  else drawSprite(c, f.def, f.pose, f.t, f.vx * f.facing);
   c.restore();
 }
 // sparkly extras drawn over the pixel layer
@@ -1385,6 +1427,17 @@ function drawOver(c, f) {
     c.fillStyle = '#9fe8ff'; c.beginPath(); c.moveTo(0, -s); c.lineTo(s, 0); c.lineTo(0, s); c.lineTo(-s, 0); c.fill(); c.fillStyle = '#fff'; c.fillRect(-s * .4, -s * .5, s * .5, s * .4); c.restore(); };
   if (f.diamond > 0) for (let i = 0; i < 5; i++) { const a = f.t * .05 + i * 1.26; gem(f.x + Math.cos(a) * 30, f.y - 75 + Math.sin(a) * 50, 5, Math.min(1, f.diamond / 20)); }
   if (f.bagBonus > 0) gem(f.x + f.facing * 18, f.y - 160 + Math.sin(f.t * .15) * 2, 6, 1);
+  if (f.lockin > 0 && (f.t >> 2) % 3 === 0) {
+    c.save(); c.strokeStyle = '#bffcff'; c.lineWidth = 1.6; c.globalAlpha = .9;
+    for (let k = 0; k < 2; k++) { let x = f.x + (Math.random() - .5) * 50, y = f.y - 20 - Math.random() * 120; c.beginPath(); c.moveTo(x, y);
+      for (let j = 0; j < 4; j++) { x += (Math.random() - .5) * 18; y -= 6 + Math.random() * 8; c.lineTo(x, y); } c.stroke(); }
+    c.restore();
+  }
+  if (f.big > 0) {
+    c.save(); c.font = 'bold 14px "Russo One", sans-serif'; c.textAlign = 'center';
+    for (let i = 0; i < 4; i++) { const k = ((f.t + i * 22) % 88) / 88; c.globalAlpha = 1 - k; c.fillStyle = OUT; c.fillText('$', f.x + (i - 1.5) * 26 + 1, f.y - 60 - k * 130 + 1); c.fillStyle = '#ffe27a'; c.fillText('$', f.x + (i - 1.5) * 26, f.y - 60 - k * 130); }
+    c.restore();
+  }
 }
 function drawProj(p) {
   if (p.delay > 0) return;
@@ -1670,7 +1723,7 @@ function hudBar(f, side, wins) {
   const bx = side === 0 ? mx + mw + 14 : mx - 14;
   c.textBaseline = 'top';
   let st = null;
-  if (f.lockin > 0) st = ['LOCKED IN ' + Math.ceil(f.lockin / 60) + 's', '#ff3355'];
+  if (f.lockin > 0) st = ['LOCKED IN ' + Math.ceil(f.lockin / 60) + 's', '#5ff4ff'];
   else if (f.sleep > 0) st = ['NAPPING', '#9ac8ff'];
   else if (f.shield > 0) st = ['SHIELD UP', '#c77dff'];
   else if (f.id === 'skroot' && !f.revived) st = ['LAST ACCOUNT READY', '#39ffa0'];
@@ -2006,7 +2059,7 @@ function loop(now) {
   try { await Promise.race([document.fonts.load('700 40px Teko'), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
   tick('LOADING FIGHTERS');
   const imgs = await Promise.all(ROSTER.map(d => loadImg(d.pfp).then(im => { tick('LOADED ' + d.name); return im; })));
-  ROSTER.forEach((d, i) => { HEADS[d.id] = makeHead(d, imgs[i]); PORTRAITS[d.id] = makePortrait(d, imgs[i]); });
+  ROSTER.forEach((d, i) => { HEADS[d.id] = makeHead(d, imgs[i]); PORTRAITS[d.id] = makePortrait(d, imgs[i]); if (FORMS[d.id]) HEADS[FORMS[d.id].key] = makeHead(d, imgs[i], FORMS[d.id].tint); });
   buildStage();
   { const lb = $('#lineupBg').getContext('2d'); lb.imageSmoothingEnabled = false; const sc = 1.15, top = GROUND - 208 / sc, left = W / 2 - 360 / sc; lb.drawImage(bg, left * RS, (top - BG_TOP) * RS, 720 / sc * RS, 220 / sc * RS, 0, 0, 720, 220); }
   buildCards();
