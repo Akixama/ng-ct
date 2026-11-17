@@ -41,12 +41,12 @@ On phones, on-screen buttons appear during a fight.
 | **Promise** @sol_promise | $100 Tip | Casino Spin | Giveaway Rain | Big Win |
 | **Dave** @solana_dave2 | Dog Wif Hat | Cooking Behind The Scenes | 50x Long | Incredibly Early |
 | **Milla** @millw11488 | Merry Men Volley | Sakura Bloom | Force Push | Audited |
-| **Hate** @hate_ofx | Airdrop | Ape Big | Making It Big | Never Give Up |
+| **Hate** @hate_ofx | Going Lowkey | Ape Big | Making It Big | Never Give Up |
 | **Exit Liquidity** @exittliquidity | Cape Dash | New Toy | 7 Trench Warriors | Exit Liquidity |
 | **Ev** @xeverade | BTC To 69k? | Wasted | End Of The World | Knows Alpha |
 | **Karo** @karoblaq | Click Click Click | Chicken Change | Calm | Never Stop Clicking |
 
-The character select screen in the game shows full descriptions and damage numbers.
+Every fighter also has five stats (Health, Speed, Power, Defense, Meter gain), and each one changes how much damage they deal, take and how fast their meter fills. The character select screen in the game shows full descriptions and damage numbers.
 
 ## How it's built
 

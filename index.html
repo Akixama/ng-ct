@@ -21,7 +21,6 @@ html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;font
 #game{position:fixed;left:0;right:0;top:0;bottom:var(--touch);display:flex;align-items:center;justify-content:center;background:#000}
 #stage{position:relative;width:min(100vw,calc((100vh - var(--touch))*16/9));aspect-ratio:16/9;overflow:hidden}
 #bgcv,#cv,#fxcv,#hud{position:absolute;inset:0;width:100%;height:100%;display:block}
-.spr{filter:url(#pxa)}
 #pauseBtn{display:none;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font:600 13px 'Space Grotesk';background:rgba(0,0,0,.55);color:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:4px}
 body.touch #pauseBtn{display:block}
 
@@ -70,8 +69,9 @@ kbd{font:600 12px 'Space Grotesk';background:#23232f;border:1px solid #3a3a4d;bo
 .sel-head h2{font-size:clamp(30px,5vw,46px);text-align:center;flex:1;color:#fff}
 .sel-head h2 span{color:var(--gold)}
 .link{background:none;border:0;color:var(--mute);font:inherit;font-size:15px;cursor:pointer;padding:8px;min-width:76px;text-align:left}
-.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-@media (max-width:720px){.grid{grid-template-columns:repeat(3,1fr)}}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.grid .card{flex:0 0 calc((100% - 40px) / 5)}
+@media (max-width:720px){.grid .card{flex-basis:calc((100% - 20px) / 3)}}
 .card{position:relative;background:#101016;border:2px solid var(--line);padding:0 0 10px;cursor:pointer;color:var(--ink);text-align:center;font:inherit;overflow:hidden}
 .card canvas{width:100%;aspect-ratio:1;display:block}
 .card .nm{font:700 26px/1 'Teko';letter-spacing:.04em;margin-top:7px}
@@ -88,7 +88,7 @@ kbd{font:600 12px 'Space Grotesk';background:#23232f;border:1px solid #3a3a4d;bo
 .dtitle{color:var(--mute);margin-top:2px}
 blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);color:#dcd8e6;font-style:italic;line-height:1.5}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;margin:10px 0 14px}
-.stat{display:grid;grid-template-columns:54px 1fr;align-items:center;gap:8px;font-size:13px;color:var(--mute)}
+.stat{display:grid;grid-template-columns:62px 1fr;align-items:center;gap:8px;font-size:13px;color:var(--mute)}
 .stat i{display:block;height:6px;background:#26263a}.stat i b{display:block;height:100%;background:var(--gold)}
 .moves{list-style:none;display:grid;gap:10px}
 .moves li{display:grid;grid-template-columns:104px 1fr;gap:2px 12px}
@@ -117,7 +117,6 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pxa" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer></filter></svg>
 <div id="loading">
   <div class="ld-logo tk">NG-CT</div>
   <div class="ld-sub">TIMELINE FIGHTERS</div>
@@ -131,7 +130,7 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
 <div id="game">
   <div id="stage">
     <canvas id="bgcv" class="px" width="480" height="270"></canvas>
-    <canvas id="cv" class="px spr" width="480" height="270"></canvas>
+    <canvas id="cv" class="px" width="480" height="270"></canvas>
     <canvas id="fxcv" class="px" width="480" height="270"></canvas>
     <canvas id="hud"></canvas>
     <button id="pauseBtn" aria-label="Pause">PAUSE</button>
@@ -156,7 +155,7 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
 <section id="title" class="screen">
   <div class="wrap">
     <div class="logo"><h1 class="tk">NG-CT</h1><p>TIMELINE FIGHTERS</p></div>
-    <div class="lineup-wrap"><canvas id="lineupBg" class="px" width="720" height="220"></canvas><canvas id="lineup" class="px spr" width="720" height="220"></canvas></div>
+    <div class="lineup-wrap"><canvas id="lineupBg" class="px" width="720" height="220"></canvas><canvas id="lineup" class="px" width="720" height="220"></canvas></div>
     <div class="menu">
       <button class="btn" data-mode="arcade">ARCADE</button>
       <button class="btn ghost" data-mode="1p">VS CPU</button>
@@ -203,7 +202,7 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
     </div>
     <div class="grid" id="cards"></div>
     <div class="detail">
-      <canvas id="previewCv" class="px spr" width="208" height="272"></canvas>
+      <canvas id="previewCv" class="px" width="208" height="272"></canvas>
       <div class="dinfo" id="detail"></div>
     </div>
     <div class="sel-actions">
@@ -226,7 +225,7 @@ blockquote{margin:12px 0 6px;padding-left:12px;border-left:3px solid var(--red);
 
 <section id="over" class="screen overlay">
   <div class="box">
-    <canvas id="winCv" class="px spr" width="208" height="272"></canvas>
+    <canvas id="winCv" class="px" width="208" height="272"></canvas>
     <h2 class="tk" id="winTitle">WINS</h2>
     <div class="score" id="winScore"></div>
     <p id="winQuote"></p>
@@ -252,9 +251,9 @@ const OUT = '#140b0e';
 /* ================= ROSTER ================= */
 // head: the ellipse cut out of their real profile picture (source pixels, 400x400). port: square crop for portraits.
 const ROSTER = [
-  { id:'onepeter', name:'ONEPETER', handle:'@Onepeterrr', title:'The Lock-In', hp:100, speed:4.3, color:'#5ff4ff',
+  { id:'onepeter', name:'ONEPETER', handle:'@Onepeterrr', title:'The Lock-In', hp:100, speed:4.3, stats:{ power:4, defense:3, meter:3 }, color:'#5ff4ff',
     pfp:'pfp/onepeter.jpg',
-    head:{ h:40, contrast:1.35, eye:[241,204], poly:[[70,60],[140,20],[230,15],[310,45],[350,120],[340,210],[300,280],[250,318],[200,326],[150,316],[105,280],[75,210],[60,130]] }, port:[70,70,270],
+    head:{ h:40, contrast:1.2, bright:34, eye:[241,204], poly:[[70,60],[140,20],[230,15],[310,45],[350,120],[340,210],[300,280],[250,318],[200,326],[150,316],[105,280],[75,210],[60,130]] }, port:[70,70,270],
     quote:'18 hours locked in. 4 hours sleep.',
     style:{ skin:'#e6dad0', top:'#2a2a31', jacket:'#1b1b20', sleeve:'#1b1b20', fore:'#1b1b20', pants:'#121216', shoes:'#0b0b0d', coat:{ col:'#1b1b20', lining:'#2fc6d6', len:46 }, chain:true, glove:'#22a6b8' },
     jab:{ name:'Reply Jab', desc:'Quick straight punch. 5 damage.' },
@@ -263,7 +262,7 @@ const ROSTER = [
     special:{ name:'Callout', desc:'His glowing eye fires a cyan crescent across the street. 9 damage.' },
     special2:{ name:'Diamond Hands', desc:'Holds the bag through the dip. For 2.5 seconds nothing staggers him and he takes half damage. Everything he soaked up is added to his next hit (up to +20).' },
     super:{ name:'18-Hour Lock-In', desc:'6 seconds of +40% damage and +30% speed. Then the 4-hour nap hits and he is slowed for 2 seconds.' } },
-  { id:'skroot', name:'SKROOT', handle:'@skrootimburg', title:'Still The Dr.', hp:90, speed:3.9, color:'#e9e9e9',
+  { id:'skroot', name:'SKROOT', handle:'@skrootimburg', title:'Still The Dr.', hp:90, speed:3.9, stats:{ power:3, defense:4, meter:3 }, color:'#e9e9e9',
     pfp:'pfp/skroot.jpg',
     head:{ h:43, poly:[[185,95],[270,92],[290,150],[335,185],[330,205],[300,215],[305,260],[300,300],[285,335],[240,350],[200,345],[175,320],[170,280],[172,230],[160,212],[125,200],[128,185],[170,165]] }, port:[110,70,240],
     quote:'Last account guys. Still the Dr.',
@@ -274,7 +273,7 @@ const ROSTER = [
     special:{ name:'Send Floki', desc:'A shiba sprints along the street. Jump it or take 10 damage.' },
     special2:{ name:'Bonding Curve', desc:'He apes a fresh pump.fun coin. It climbs the bonding curve, then dumps straight down on the opponent. If it lands it GRADUATES: 11 damage and he gets the whole 35 meter back in profit. If it misses, he got RUGGED and the meter is gone.' },
     super:{ name:'Doctor’s Orders', desc:'Radios it in on the walkie-talkie and heals 25 HP.' } },
-  { id:'promise', name:'PROMISE', handle:'@sol_promise', title:'Giveaway King', hp:100, speed:4.0, color:'#ff3b3b',
+  { id:'promise', name:'PROMISE', handle:'@sol_promise', title:'Giveaway King', hp:100, speed:4.0, stats:{ power:3, defense:2, meter:5 }, color:'#ff3b3b',
     pfp:'pfp/promise.jpg',
     head:{ h:41, poly:[[200,25],[260,40],[310,90],[335,160],[340,240],[320,300],[280,330],[200,345],[120,330],[80,300],[62,240],[70,160],[95,90],[140,40]] }, port:[80,80,240],
     quote:'Need a win big enough to make me a motivational speaker.',
@@ -285,7 +284,7 @@ const ROSTER = [
     special:{ name:'$100 Tip', desc:'Lobs a heavy gold coin in an arc. 9 damage.' },
     special2:{ name:'Casino Spin', desc:'A gamble. 55% JACKPOT: a coin burst for 16 damage up close. 45% BUST: he gets dizzy for a moment.' },
     super:{ name:'Giveaway Rain', desc:'Like, RT, follow. 8 coins rain down around the opponent, 4 damage each. Keep moving to dodge.' } },
-  { id:'dave', name:'DAVE', handle:'@solana_dave2', title:'Wif Co-Founder', hp:100, speed:4.0, color:'#7fbf6a',
+  { id:'dave', name:'DAVE', handle:'@solana_dave2', title:'Wif Co-Founder', hp:100, speed:4.0, stats:{ power:3, defense:3, meter:4 }, color:'#7fbf6a',
     pfp:'pfp/dave.jpg',
     head:{ h:37, poly:[[80,45],[160,32],[230,40],[285,80],[328,128],[346,172],[336,232],[310,262],[300,300],[250,316],[160,310],[90,290],[30,270],[5,240],[0,180],[20,120]] }, port:[0,30,330],
     quote:'Stay tuned. Something is coming.',
@@ -296,7 +295,7 @@ const ROSTER = [
     special:{ name:'Dog Wif Hat', desc:'Tosses the shiba in the pink hat. It hops down the street at the opponent. 9 damage.' },
     special2:{ name:'Cooking Behind The Scenes', desc:'Sets down a pot that cooks for 1.5 seconds, then boils over on anyone close. 12 damage. Stay tuned.' },
     super:{ name:'50x Long', desc:'Opens a 50x long. Three giant green candles erupt under the opponent one after another, 10 damage each. Keep moving.' } },
-  { id:'milla', name:'MILLA', handle:'@millw11488', title:'The Builder', hp:95, speed:4.1, color:'#c77dff', fem:true,
+  { id:'milla', name:'MILLA', handle:'@millw11488', title:'The Builder', hp:95, speed:4.1, stats:{ power:2, defense:5, meter:3 }, color:'#c77dff', fem:true,
     pfp:'pfp/milla.jpg',
     head:{ h:42, flip:true, poly:[[150,5],[240,0],[300,30],[330,90],[340,160],[330,230],[300,280],[260,300],[220,290],[190,270],[150,260],[110,270],[80,240],[70,170],[90,90],[110,40]] }, port:[95,15,250],
     quote:'Building the most secure open-source engine.',
@@ -308,18 +307,18 @@ const ROSTER = [
     special2:{ name:'Sakura Bloom', desc:'A storm of cherry blossoms from her Sakura app drifts across the street, hitting up to 3 times for 3 damage. Every hit records a milestone: +1 damage on all her attacks for the rest of the match (max +3). No one can take it away.' },
     super:{ name:'Force Push', desc:'A neon shockwave down the street. 18 damage, doubled if they’re under 35% HP. Jump it.' } },
 
-  { id:'hate', name:'HATE', handle:'@hate_ofx', title:'Never Give Up', hp:100, speed:4.0, color:'#f2c14e',
+  { id:'hate', name:'HATE', handle:'@hate_ofx', title:'Never Give Up', hp:100, speed:4.0, stats:{ power:5, defense:2, meter:2 }, color:'#f2c14e',
     pfp:'pfp/hate.jpg',
     head:{ h:44, poly:[[75,25],[245,25],[245,85],[275,95],[270,112],[250,118],[255,200],[255,260],[240,330],[200,385],[150,392],[100,370],[70,300],[55,230],[55,160],[60,118],[25,108],[25,92],[70,85]] }, port:[20,20,280],
     quote:'I’ll never give up. I swear I’ll never.',
     style:{ skin:'#efe6dc', top:'#4a6b3a', jacket:'#18181d', sleeve:'#18181d', fore:'#18181d', pants:'#a8946a', shoes:'#3a2a1a', glove:'#f2c14e', belt:'#2a1e14' },
     jab:{ name:'Chase Jab', desc:'Quick straight punch. 5 damage.' },
-    kick:{ name:'Giveaway Kick', desc:'Long front kick. 10 damage.' },
+    kick:{ name:'Quiet Kick', desc:'Long front kick. 10 damage.' },
     passive:{ name:'Never Give Up', desc:'Under 30% HP his meter fills twice as fast.' },
-    special:{ name:'Airdrop', desc:'Calls in an airdrop. A crate parachutes onto where the opponent is standing. 10 damage, so keep moving.' },
+    special:{ name:'Going Lowkey', desc:'He goes lowkey and nearly vanishes for 4 seconds. Projectiles pass straight through him, and his first hit out of the shadows does +50%.' },
     special2:{ name:'Ape Big', desc:'Apes in for 3 seconds. If his next hit lands it DOUBLES. If he gets hit first, he LOST IT ALL and takes 8 extra damage.' },
     super:{ name:'Making It Big', desc:'From chasing airdrops to making it. He grows huge for 6 seconds: bigger reach, +50% damage, and nothing staggers him.' } },
-  { id:'exit', name:'EXIT LIQUIDITY', handle:'@exittliquidity', title:'Trench Savior', hp:100, speed:4.1, color:'#ff8c42',
+  { id:'exit', name:'EXIT LIQUIDITY', handle:'@exittliquidity', title:'Trench Savior', hp:100, speed:4.1, stats:{ power:3, defense:4, meter:3 }, color:'#ff8c42',
     pfp:'pfp/exit.jpg',
     head:{ h:42, poly:[[120,40],[190,22],[260,35],[300,80],[312,150],[330,170],[328,250],[305,275],[295,330],[260,380],[200,398],[140,385],[105,335],[95,280],[70,260],[62,180],[90,160],[95,90]] }, port:[60,40,300],
     quote:'Time to put on my cape and bring the trenches back to life.',
@@ -330,7 +329,7 @@ const ROSTER = [
     special:{ name:'Cape Dash', desc:'Throws on the cape and dashes straight through the opponent. 10 damage.' },
     special2:{ name:'New Toy', desc:'“Thank you @Pumpfun.” A car from his collection tears down the street. 14 damage. Jump it.' },
     super:{ name:'7 Trench Warriors', desc:'1 SOL to 7 trench warriors. Seven of them charge in one after another, 4 damage each.' } },
-  { id:'ev', name:'EV', handle:'@xeverade', title:'The Goldmine', hp:95, speed:4.0, color:'#3fa34d',
+  { id:'ev', name:'EV', handle:'@xeverade', title:'The Goldmine', hp:95, speed:4.0, stats:{ power:4, defense:4, meter:2 }, color:'#3fa34d',
     pfp:'pfp/ev.jpg',
     head:{ h:44, poly:[[150,45],[220,40],[280,90],[300,170],[295,250],[270,310],[230,345],[170,350],[120,330],[80,290],[60,220],[70,140],[100,80]] }, port:[50,40,280],
     quote:'BTC to 69k?',
@@ -341,7 +340,7 @@ const ROSTER = [
     special:{ name:'BTC To 69k?', desc:'Rolls a giant Bitcoin down the street. 9 damage. Jump it.' },
     special2:{ name:'Wasted', desc:'Still waiting on GTA VI, so he does it himself. A flying kick that ends in WASTED. 12 damage.' },
     super:{ name:'End Of The World', desc:'“Nice to meet you guys, it was fun.” The sky turns red and four meteors crash around the opponent, 8 damage each.' } },
-  { id:'karo', name:'KARO', handle:'@karoblaq', title:'Never Stop Clicking', hp:95, speed:4.3, color:'#9aa7ff',
+  { id:'karo', name:'KARO', handle:'@karoblaq', title:'Never Stop Clicking', hp:95, speed:4.3, stats:{ power:2, defense:2, meter:4 }, color:'#9aa7ff',
     pfp:'pfp/karo.jpg',
     head:{ h:42, flip:true, poly:[[40,90],[120,60],[220,60],[300,90],[330,140],[325,220],[300,280],[280,320],[230,345],[180,330],[150,300],[120,280],[60,300],[10,270],[5,180],[15,120]] }, port:[100,60,280],
     quote:'All a man wants is to make money and be happy.',
@@ -389,7 +388,7 @@ function makeHead(def, im) {
   for (let i = 0; i < a.length; i += 4) {
     if (a[i + 3] < 128) { a[i + 3] = 0; continue; }
     a[i + 3] = 255;
-    for (let k = 0; k < 3; k++) a[i + k] = Math.max(0, Math.min(255, (a[i + k] - 128) * (H.contrast || 1.12) + 128)) & 0xF8;
+    for (let k = 0; k < 3; k++) a[i + k] = Math.max(0, Math.min(255, (a[i + k] - 128) * (H.contrast || 1.12) + 128 + (H.bright || 0))) & 0xF8;
   }
   mx.putImageData(img, 0, 0);
   // silhouette for the outline
@@ -580,17 +579,22 @@ function drawSprite(c, def, P, t, vx = 0) {
     c.fillStyle = shade(S.coat.col, .3); c.fillRect(wr[0] - 3, wr[1] + 2, 2, S.coat.len - 8);
   }
   // neck + head (their real profile picture)
-  const nk = rot(hip, lean, 0, -TORSO - 2);
-  c.fillStyle = OUT; c.fillRect(nk[0] - 6, nk[1] - 8, 12, 11); c.fillStyle = S.neck || S.skin; c.fillRect(nk[0] - 4.5, nk[1] - 8, 9, 10); c.fillStyle = shade(S.neck || S.skin, -.3); c.fillRect(nk[0] - 4.5, nk[1] - 8, 3, 10);
+  const nk = rot(hip, lean, 0, -TORSO - 2), nc = S.neck || S.skin;
+  c.fillStyle = OUT; c.fillRect(nk[0] - 6, nk[1] - 12, 12, 15);
+  c.fillStyle = nc; c.fillRect(nk[0] - 4.5, nk[1] - 12, 9, 14);
+  c.fillStyle = shade(nc, -.3); c.fillRect(nk[0] - 4.5, nk[1] - 12, 3, 14);
   const head = HEADS[def.id];
-  if (head) {
+  const drawHead = () => {
+    if (!head) return;
     c.save(); c.translate(neck[0], neck[1] + 2); c.rotate(lean * .45 + (P.tilt || 0));
-    c.drawImage(head, -head.ax, -head.lh + 8, head.lw, head.lh);
-    if (def.id === 'onepeter' && P.glow) { const gx = -head.ax + head.ex, gy = -head.lh + 8 + head.ey; c.fillStyle = '#9ffbff'; c.beginPath(); c.arc(gx, gy, 2.2 * P.glow, 0, 7); c.fill(); }
+    c.drawImage(head, -head.ax, -head.lh + 2, head.lw, head.lh);
+    if (def.id === 'onepeter' && P.glow) { const gx = -head.ax + head.ex, gy = -head.lh + 2 + head.ey; c.fillStyle = '#9ffbff'; c.beginPath(); c.arc(gx, gy, 2.2 * P.glow, 0, 7); c.fill(); }
     c.restore();
-  }
-  // front arm last
-  drawArm(c, shF, P.fArm, S, false, item);
+  };
+  // a raised arm (block, uppercut, cheering) goes in front of the face; otherwise the head is on top
+  const armUp = P.fArm[0] > 2.1 || P.fArm[0] + P.fArm[1] > 2.3;
+  if (armUp) { drawHead(); drawArm(c, shF, P.fArm, S, false, item); }
+  else { drawArm(c, shF, P.fArm, S, false, item); drawHead(); }
 }
 
 /* ================= POSES ================= */
@@ -627,7 +631,7 @@ const POSES = {
 };
 const SUPER_POSE = { onepeter:'power', skroot:'radio', promise:'cast', dave:'raise', milla:'cast', hate:'power', exit:'raise', ev:'raise', karo:'stand' };
 const SPECIAL2_POSE = { onepeter:'hold', skroot:'cast', promise:'spin', dave:'cast', milla:'shield', hate:'power', exit:'raise', ev:'airkick', karo:'throw' };
-const SPECIAL_POSE = { promise:'throw', dave:'throw', ev:'throw', hate:'raise', exit:'punchF' };
+const SPECIAL_POSE = { promise:'throw', dave:'throw', ev:'throw', hate:'stand', exit:'punchF' };
 function lerpPose(cur, tgt, r) {
   for (const k of POSE_KEYS) cur[k] += ((tgt[k] || 0) - cur[k]) * r;
   for (const k of ['fArm','bArm','fLeg','bLeg']) { cur[k][0] += (tgt[k][0] - cur[k][0]) * r; cur[k][1] += (tgt[k][1] - cur[k][1]) * r; }
@@ -688,6 +692,8 @@ const MOVES = {
 // combo routes: what each button does after a landed hit
 const CHAIN = { D:{ light:['light','J'], heavy:['sweep','JK'] }, J:{ light:['light','JJ'], heavy:['sweep','JK'] }, JJ:{ light:['upper','JJJ'], heavy:['heavy2','JJK'] }, K:{ heavy:['round','KK'] } };
 const COMBO_NAMES = { JJJ:'UPPERCUT!', KK:'ROUNDHOUSE!', JK:'SWEEP!', JJK:'1-2-KICK!' };
+// stat tiers 1-5: damage dealt, damage taken, meter gained
+const POW = [0, .9, .95, 1, 1.07, 1.14], DEFN = [0, 1.1, 1.05, 1, .94, .88], MET = [0, .85, .92, 1, 1.1, 1.2];
 const overlap = (x, y, w, h, b) => x < b.x + b.w && x + w > b.x && y < b.y + b.h && y + h > b.y;
 function sparks(x, y, col, n = 8, sp = 5) {
   for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, s = Math.random() * sp + 1; G.parts.push({ x, y, vx:Math.cos(a) * s, vy:Math.sin(a) * s - 1, life:16 + (Math.random() * 12 | 0), col }); }
@@ -698,7 +704,7 @@ function floatText(x, y, text, col, size = 26) { G.texts.push({ x, y, text, col,
 function proj(o) { const p = Object.assign({ t:0, vy:0, g:0, life:240, kb:5, stun:18, delay:0 }, o); G.proj.push(p); return p; }
 const SHIELDABLE = new Set(['callout','floki','coin','wif','arrow']);
 const SPECIALS = {
-  hate:     (f, o) => { floatText(f.x, f.y - 175, 'AIRDROP INCOMING', '#f2c14e', 24); proj({ kind:'crate', owner:f, target:o, x:o.x, y:G.camY - 30, vx:0, vy:1, g:.2, maxVy:4.2, w:34, h:34, dmg:10, kb:6, stun:22, life:200, anyDir:true }); },
+  hate:     f => { f.lowkey = 240; floatText(f.x, f.y - 175, 'LOWKEY', '#b9b9c6', 30); },
   exit:     (f, o) => { f.atk.dash = { len:16, speed:10, dmg:10, kb:7, stun:22 }; floatText(f.x, f.y - 175, 'CAPE ON', '#ff8c42', 24); },
   ev:       (f, o) => proj({ kind:'btc', owner:f, target:o, x:f.x + f.facing * 30, y:GROUND - 15, vx:f.facing * 7.5, w:30, h:30, dmg:9, kb:6, stun:20 }),
   karo:     f => { f.atk.flurry = true; },
@@ -753,17 +759,18 @@ class Fighter {
   reset() {
     Object.assign(this, { x: this.side === 0 ? W / 2 - 100 : W / 2 + 100, y:GROUND, vx:0, vy:0, facing: this.side === 0 ? 1 : -1,
       hp:this.maxHp, hpShow:this.maxHp, atk:null, stun:0, stunType:null, blocking:false, state:'idle', koT:0, t:0, walkPhase:0,
-      lockin:0, sleep:0, invuln:0, revived:false, win:false, buf:null, bufT:0, combo:0, diamond:0, bag:0, bagBonus:0, shield:0, knock:0, knockMax:0, ape:0, big:0, calm:0, alphaT:360, alphaReady:false, dashT:0, dashDir:0, prevDir:0, tapDir:0, tapT:-99, pose:clonePose(BASE()) });
+      lockin:0, sleep:0, invuln:0, revived:false, win:false, buf:null, bufT:0, combo:0, diamond:0, bag:0, bagBonus:0, shield:0, knock:0, knockMax:0, ape:0, big:0, calm:0, lowkey:0, alphaT:360, alphaReady:false, dashT:0, dashDir:0, prevDir:0, tapDir:0, tapT:-99, pose:clonePose(BASE()) });
   }
   hurtBox() { const b = this.big > 0 ? 1.3 : 1; return { x:this.x - 20 * b, y:this.y - 132 * b, w:40 * b, h:132 * b }; }
   dmgMult() { return (this.lockin > 0 ? 1.4 : 1) * (this.big > 0 ? 1.5 : 1); }
-  meterMult() { return this.id === 'hate' && this.hp < this.maxHp * .3 ? 2 : 1; }
+  meterMult() { return (this.id === 'hate' && this.hp < this.maxHp * .3 ? 2 : 1) * MET[this.def.stats.meter]; }
   spdMult() { return this.lockin > 0 ? 1.3 : this.sleep > 0 ? .5 : 1; }
   update(o, inp) {
     this.t++;
     if (this.invuln > 0) this.invuln--;
     if (this.knock > 0) this.knock--;
     if (this.ape > 0) this.ape--;
+    if (this.lowkey > 0 && --this.lowkey === 0) floatText(this.x, this.y - 175, 'BACK IN VIEW', '#b9b9c6', 22);
     if (this.calm > 0) this.calm--;
     if (this.big > 0 && --this.big === 0) floatText(this.x, this.y - 175, 'BACK TO NORMAL', '#f2c14e', 22);
     if (this.id === 'ev' && !this.alphaReady && --this.alphaT <= 0) { this.alphaReady = true; this.alphaT = 360; }
@@ -885,7 +892,7 @@ function applyHit(a, d, dmg, kb, stun, o = {}) {
     sparks(o.hx ?? d.x, o.hy ?? d.y - 80, '#3fa34d', 8, 4); sfx('block');
     d.stun = 8; d.stunType = 'block'; return false;
   }
-  dmg *= a.dmgMult();
+  dmg *= a.dmgMult() * POW[a.def.stats.power] * DEFN[d.def.stats.defense];
   dmg += a.milestones || 0;
   if (a.id === 'promise' && Math.random() < .15) { dmg *= 2; floatText(d.x, d.y - 175, 'BIG WIN!', '#ffcf33', 34); sfx('coin'); }
   const srcX = o.srcX ?? a.x;
@@ -894,6 +901,7 @@ function applyHit(a, d, dmg, kb, stun, o = {}) {
   const hx = o.hx ?? d.x, hy = o.hy ?? d.y - 80;
   if (a.bagBonus > 0 && !blocked) { dmg += a.bagBonus; floatText(d.x, d.y - 190, 'BAG PAID +' + a.bagBonus, '#9fe8ff', 32); a.bagBonus = 0; G.shake = 10; }
   if (d.id === 'onepeter') stun = Math.round(stun * .65);
+  if (!blocked && a.lowkey > 0) { dmg *= 1.5; a.lowkey = 0; floatText(d.x, d.y - 190, 'CAUGHT YOU SLIPPING', '#f2c14e', 30); }
   if (!blocked && a.ape > 0) { dmg *= 2; a.ape = 0; floatText(d.x, d.y - 190, 'DOUBLED IT!', '#f2c14e', 34); }
   if (!blocked && d.ape > 0) { dmg += 8; d.ape = 0; floatText(d.x, d.y - 190, 'LOST IT ALL', '#ff4a5a', 34); }
   if (blocked && d.id === 'exit') d.meter = Math.min(100, d.meter + 7);
@@ -955,7 +963,7 @@ class CPU {
     }
     this.cool--;
     // see an attack start: block it, or step away from a throw / overhead
-    if (o.atk && o.atk !== this.lastAtk) {
+    if (o.atk && o.atk !== this.lastAtk && !(o.lowkey > 0 && R() < .6)) {
       this.lastAtk = o.atk;
       if (NORMAL.has(o.atk.kind) && d < 130) {
         if (o.atk.kind === 'grab' || o.atk.kind === 'overhead') { if (R() < s * .7) { back(); inp.dash = -dir; return inp; } }
@@ -1039,14 +1047,13 @@ function separate() {
 function updateProj() {
   for (const p of G.proj) {
     if (p.delay > 0) { if (--p.delay === 0 && p.track !== undefined) p.x = p.target.x + p.track; continue; }
-    if (p.kind === 'crate' && p.t === 0) p.x = p.target.x;
     p.t++; p.life--; p.vy += p.g; p.x += p.vx; p.y += p.vy;
     const t = p.target;
     if (p.maxVy && p.vy > p.maxVy) p.vy = p.maxVy;
     if (p.bounces && p.y >= GROUND - 12 && p.vy > 0) { p.bounces--; p.y = GROUND - 30; p.vy = -5; sparks(p.x, GROUND - 4, '#c9b8a0', 4, 2); continue; }
-    if ((p.kind === 'crate' || p.kind === 'meteor' || p.kind === 'chicken') && p.y >= GROUND - 14 && !p.bounces) {
+    if ((p.kind === 'meteor' || p.kind === 'chicken') && p.y >= GROUND - 14 && !p.bounces) {
       p.dead = true; sparks(p.x, GROUND - 8, p.kind === 'meteor' ? '#ff6a2a' : '#c9b8a0', 14, 5);
-      if (p.kind !== 'chicken') { G.shake = Math.max(G.shake, 6); G.flashes.push({ x:p.x, y:GROUND - 10, t:0, s:1.2, col:p.kind === 'meteor' ? '#ff6a2a' : '#ffffff' }); }
+      if (p.kind === 'meteor') { G.shake = Math.max(G.shake, 6); G.flashes.push({ x:p.x, y:GROUND - 10, t:0, s:1.2, col:p.kind === 'meteor' ? '#ff6a2a' : '#ffffff' }); }
       if (!p.hit && t.state !== 'ko' && overlap(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, t.hurtBox())) applyHit(p.owner, t, p.dmg, p.kb, p.stun, { srcX:p.x, anyDir:true, hx:p.x, hy:p.y });
       continue;
     }
@@ -1071,7 +1078,7 @@ function updateProj() {
       p.dead = true; sparks(p.x, p.y, '#c77dff', 12, 4); floatText(t.x + t.facing * 30, t.y - 150, 'PATCHED', '#c77dff', 24); continue;
     }
     const ready = p.hits ? p.t - (p.lastHit ?? -99) >= p.hitGap : !p.hit;
-    if (ready && (!p.hitFrom || p.t >= p.hitFrom) && t.state !== 'ko' &&
+    if (ready && (!p.hitFrom || p.t >= p.hitFrom) && t.state !== 'ko' && !(t.lowkey > 0 && !p.anyDir) &&
         overlap(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, t.hurtBox())) {
       const landed = applyHit(p.owner, t, p.dmg, p.kb, p.stun, { srcX: p.srcX ?? (p.x - Math.sign(p.vx) * 100), meter:p.meter || 6, liq:p.liq, stop:p.stop, anyDir:p.anyDir, hx:p.x, hy:p.y });
       if (p.kind === 'curve' && landed && t.stunType === 'block') floatText(p.x, p.y - 40, 'NO PROFIT', '#ff4a5a', 28);
@@ -1250,6 +1257,7 @@ function drawFighter(f) {
   else if (f.knock > 0) fall = f.knock > 10 ? Math.min(1, (f.knockMax - f.knock) / 6) : f.knock / 10;
   if (fall) { c.translate(0, -4 * fall); c.rotate(-Math.PI / 2 * fall); }
   if (f.invuln > 0 && (f.t >> 2) % 2) c.globalAlpha = .45;
+  if (f.lowkey > 0) c.globalAlpha = .22 + Math.sin(f.t * .2) * .05;
   drawSprite(c, f.def, f.pose, f.t, f.vx * f.facing);
   c.restore();
 }
@@ -1313,15 +1321,6 @@ function drawProj(p) {
       c.fillStyle = 'rgba(255,255,255,.55)';
       for (let i = 0; i < 3; i++) { const sy = -20 - ((p.t * .7 + i * 9) % 26), sx = -6 + i * 6 + Math.sin(p.t * .2 + i) * 3; c.beginPath(); c.arc(sx, sy, 3 + (-sy - 20) * .12, 0, 7); c.fill(); }
       if (done > .5 && (p.t >> 2) % 2) { c.fillStyle = '#ff4a5a'; c.font = '700 14px Teko, sans-serif'; c.textAlign = 'center'; c.fillText('!', 0, -40); }
-      break; }
-    case 'crate': {
-      // parachute + supply crate
-      c.strokeStyle = OUT; c.lineWidth = 1.4; c.beginPath(); c.moveTo(-14, -16); c.lineTo(-20, -44); c.moveTo(14, -16); c.lineTo(20, -44); c.moveTo(0, -16); c.lineTo(0, -46); c.stroke();
-      c.fillStyle = OUT; c.beginPath(); c.ellipse(0, -46, 28, 15, 0, Math.PI, 0); c.fill();
-      c.fillStyle = '#e8e8e8'; c.beginPath(); c.ellipse(0, -46, 26, 13.5, 0, Math.PI, 0); c.fill();
-      c.fillStyle = '#f2c14e'; c.beginPath(); c.ellipse(0, -46, 9, 13.5, 0, Math.PI, 0); c.fill();
-      RO(c, '#a87a48', -16, -16, 32, 32); R(c, '#8a5f34', -16, -16, 32, 5); R(c, '#8a5f34', -16, 11, 32, 5);
-      c.fillStyle = '#f2c14e'; c.font = '700 14px Teko, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('SOL', 0, 1);
       break; }
     case 'car': {
       c.scale(d, 1); c.translate(0, 22);
@@ -1467,7 +1466,13 @@ const screenOf = (x, y) => [(x - G.camX) * W / VIEW_W, (y - G.camY) * W / VIEW_W
 
 /* ================= HUD ================= */
 const hud = $('#hud'), hc = hud.getContext('2d');
-hud.width = W * 2; hud.height = H * 2;
+let HUDS = 2;
+function sizeHud() {
+  const r = $('#stage').getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+  const w = Math.max(480, Math.round(r.width * dpr)); if (hud.width === w) return;
+  hud.width = w; hud.height = Math.round(w * 9 / 16); HUDS = w / W;
+}
+sizeHud(); addEventListener('resize', sizeHud);
 let frame = 0;
 function skewPath(c, x, y, w, h, sk) { c.beginPath(); c.moveTo(x + sk, y); c.lineTo(x + w + sk, y); c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath(); }
 function hudBar(f, side, wins) {
@@ -1529,6 +1534,7 @@ function hudBar(f, side, wins) {
   else if (f.diamond > 0) st = ['DIAMOND HANDS ' + Math.ceil(f.diamond / 60) + 's', '#9fe8ff'];
   else if (f.big > 0) st = ['MAKING IT BIG ' + Math.ceil(f.big / 60) + 's', '#f2c14e'];
   else if (f.ape > 0) st = ['APED IN', '#f2c14e'];
+  else if (f.lowkey > 0) st = ['LOWKEY ' + Math.ceil(f.lowkey / 60) + 's', '#b9b9c6'];
   else if (f.calm > 0) st = ['CALM ' + Math.ceil(f.calm / 60) + 's', '#9aa7ff'];
   else if (f.id === 'ev' && f.alphaReady) st = ['ALPHA READY', '#3fa34d'];
   else if (f.id === 'hate' && f.hp < f.maxHp * .3 && f.state !== 'ko') st = ['NEVER GIVE UP x2 METER', '#f2c14e'];
@@ -1548,7 +1554,7 @@ function bigText(text, size, y, top = '#fff6c9', bot = '#ff9f1a', sub) {
 }
 function renderHUD() {
   const c = hc;
-  c.setTransform(2, 0, 0, 2, 0, 0); c.clearRect(0, 0, W, H);
+  c.setTransform(HUDS, 0, 0, HUDS, 0, 0); c.clearRect(0, 0, W, H);
   c.textAlign = 'center'; c.textBaseline = 'middle';
   for (const t of G.texts) {
     const [sx, sy0] = screenOf(t.x, t.y), sy = Math.max(sy0, 112);
@@ -1627,6 +1633,7 @@ const menuPoses = ROSTER.map(() => clonePose(BASE()));
 function show(id) {
   for (const s of document.querySelectorAll('.screen')) s.classList.toggle('on', s.id === id);
   document.body.classList.toggle('playing', (!id || id === 'pause') && solo());
+  if (!id) setTimeout(sizeHud, 0);
 }
 function buildCards() {
   const wrap = $('#cards');
@@ -1658,6 +1665,9 @@ function renderSelect() {
     <div class="stats">
       <div class="stat">Health <i><b style="width:${(d.hp - 70) / 35 * 100}%"></b></i></div>
       <div class="stat">Speed <i><b style="width:${(d.speed - 3.4) / 1.0 * 100}%"></b></i></div>
+      <div class="stat">Power <i><b style="width:${d.stats.power * 20}%"></b></i></div>
+      <div class="stat">Defense <i><b style="width:${d.stats.defense * 20}%"></b></i></div>
+      <div class="stat">Meter <i><b style="width:${d.stats.meter * 20}%"></b></i></div>
     </div>
     <ul class="moves">
       ${row('p', 'PASSIVE', d.passive)}
@@ -1801,7 +1811,7 @@ function menuFrame() {
   if ($('#select').classList.contains('on')) {
     S.previewT++;
     const d = ROSTER[S.cursor], ph = Math.floor(S.previewT / 100) % 4;
-    const pose = ph === 1 ? (d.id === 'promise' ? POSES.throw(frame) : POSES.cast(frame)) : ph === 2 ? POSES[SPECIAL2_POSE[d.id]](frame) : ph === 3 ? POSES[SUPER_POSE[d.id]](frame) : POSES.guard(frame);
+    const pose = ph === 1 ? (d.id === 'promise' ? POSES.throw(frame) : POSES.cast(frame)) : ph === 2 ? POSES[SPECIAL2_POSE[d.id]](frame) : ph === 3 ? POSES[SUPER_POSE[d.id]](frame) : POSES.stand(frame);
     lerpPose(menuPoses[S.cursor], pose, .2);
     drawMenuSprite(previewCv, [d], [menuPoses[S.cursor]], { scale:1.45, pos:[[96, 252, 1]] });
   }
