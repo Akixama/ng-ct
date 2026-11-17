@@ -273,7 +273,7 @@ const ROSTER = [
     kick:{ name:'House Call', desc:'Long front kick. 10 damage.' },
     passive:{ name:'Last Account', desc:'The first KO each round doesn’t count. He gets back up with 15 HP.' },
     special:{ name:'Send Floki', desc:'A shiba sprints along the street. Jump it or take 10 damage.' },
-    special2:{ name:'Bonding Curve', desc:'He apes a fresh pump.fun coin. It climbs the bonding curve, then dumps straight down on the opponent. If it lands it GRADUATES: 11 damage and he gets the whole 35 meter back in profit. If it misses, he got RUGGED and the meter is gone.' },
+    special2:{ name:'Bonding Curve', desc:'He apes three fresh pump.fun coins at once. They climb the bonding curve, then dump down on and around the opponent. Every coin that lands GRADUATES: 5 damage and +12 meter back in profit (all three is a full refund). Every coin that misses got RUGGED.' },
     super:{ name:'Doctor’s Orders', desc:'Radios it in on the walkie-talkie and heals 25 HP.' } },
   { id:'promise', name:'PROMISE', handle:'@sol_promise', title:'Giveaway King', hp:100, speed:4.0, stats:{ power:3, defense:2, meter:5 }, color:'#ff3b3b',
     pfp:'pfp/promise.jpg',
@@ -821,8 +821,10 @@ const SPECIALS2 = {
   ev:       f => { f.vy = -6; f.atk.dash = { len:18, speed:9, dmg:12, kb:9, stun:28, text:'WASTED', col:'#d9d9d9' }; },
   karo:     (f, o) => proj({ kind:'chicken', owner:f, target:o, x:f.x + f.facing * 30, y:f.y - 110, vx:f.facing * 4.4, vy:-7, g:.38, bounces:1, w:30, h:22, dmg:10, kb:6, stun:22 }),
   onepeter: f => { f.diamond = 150; f.bag = 0; floatText(f.x, f.y - 175, 'DIAMOND HANDS', '#9fe8ff', 28); },
-  skroot:   (f, o) => { floatText(f.x, f.y - 180, 'APED $ROCKSTAR', '#5dff9a', 30); sfx('coin');
-    proj({ kind:'curve', owner:f, target:o, tx:o.x, x:f.x + f.facing * 30, y:f.y - 60, vx:f.facing * 6.5, vy:-1, g:-.07, w:30, h:30, dmg:11, kb:6, stun:22, life:120, trail:[], meter:1, anyDir:true }); },
+  skroot:   (f, o) => { floatText(f.x, f.y - 180, 'APED $ROCKSTAR +2 MORE', '#5dff9a', 28); sfx('coin');
+    // three coins fanned out: one on the opponent, one either side of them
+    [[-48, 5.6, -2.2], [0, 6.5, -1], [48, 7.4, -.2]].forEach(([off, sp, vy], i) =>
+      proj({ kind:'curve', owner:f, target:o, tx:o.x + off * f.facing, x:f.x + f.facing * 30, y:f.y - 60, vx:f.facing * sp, vy, g:-.07, w:30, h:30, dmg:5, kb:4, stun:24, life:130, delay:i * 6 + 1, trail:[], meter:1, anyDir:true })); },
   promise:  (f, o) => {
     if (Math.random() < .55) {
       floatText(f.x, f.y - 180, 'JACKPOT', '#ffcf33', 34); sfx('coin');
@@ -1164,8 +1166,8 @@ function updateProj() {
     if (p.kind === 'curve') {
       if (p.trail) { p.trail.push([p.x, p.y]); if (p.trail.length > 40) p.trail.shift(); }
       // climb the curve, then dump straight down on the target
-      if (!p.dump && (Math.abs(p.tx - p.x) < 20 || p.t > 48 || p.y < G.camY + 40)) { p.dump = true; p.vx = 0; p.vy = 4; p.g = .9; floatText(p.x, p.y - 30, 'KING OF THE HILL', '#5dff9a', 22); }
-      if (p.y >= GROUND - 14) { p.dead = true; sparks(p.x, GROUND - 6, '#ff4a5a', 12, 4); floatText(p.x, GROUND - 60, 'RUGGED', '#ff4a5a', 30); continue; }
+      if (!p.dump && (Math.abs(p.tx - p.x) < 20 || p.t > 48 || p.y < G.camY + 40)) { p.dump = true; p.vx = 0; p.vy = 4; p.g = .9; if (!G.proj.some(q => q !== p && q.kind === 'curve' && q.dump && q.owner === p.owner)) floatText(p.x, p.y - 30, 'KING OF THE HILL', '#5dff9a', 22); }
+      if (p.y >= GROUND - 14) { p.dead = true; sparks(p.x, GROUND - 6, '#ff4a5a', 12, 4); floatText(p.x, GROUND - 60, 'RUGGED', '#ff4a5a', 22); continue; }
     }
     if (p.bounce && p.y >= GROUND - 16) { p.y = GROUND - 16; p.vy = -6.5; sparks(p.x, GROUND - 2, '#c9b8a0', 3, 2); }
     if (p.fuse) {
@@ -1186,7 +1188,7 @@ function updateProj() {
         overlap(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, t.hurtBox())) {
       const landed = applyHit(p.owner, t, p.dmg, p.kb, p.stun, { srcX: p.srcX ?? (p.x - Math.sign(p.vx) * 100), meter:p.meter || 6, liq:p.liq, stop:p.stop, anyDir:p.anyDir, hx:p.x, hy:p.y });
       if (p.kind === 'curve' && landed && t.stunType === 'block') floatText(p.x, p.y - 40, 'NO PROFIT', '#ff4a5a', 28);
-      if (p.kind === 'curve' && landed && t.stunType !== 'block') { p.owner.meter = Math.min(100, p.owner.meter + 35); floatText(p.x, p.y - 40, 'GRADUATED! +35', '#5dff9a', 32); sfx('coin'); }
+      if (p.kind === 'curve' && landed && t.stunType !== 'block') { p.owner.meter = Math.min(100, p.owner.meter + 12); floatText(p.x, p.y - 40, 'GRADUATED! +12', '#5dff9a', 26); sfx('coin'); }
       if (p.petal && landed && !t.blocking && p.owner.milestones < 3) { p.owner.milestones++; floatText(p.owner.x, p.owner.y - 175, 'MILESTONE +' + p.owner.milestones, '#ff9fc4', 26); }
       if (p.hits) { p.lastHit = p.t; if (--p.hits <= 0) p.dead = true; }
       else { p.hit = true; if (!p.pierce) p.dead = true; }
