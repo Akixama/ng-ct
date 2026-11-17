@@ -2,7 +2,7 @@
 
 A 16-bit street fighting game starring nine people from the X timeline. Every fighter's head is their profile picture, and every move is built from what they actually post.
 
-**Play it:** https://ratio-fighters.vercel.app
+**Play it:** https://ng-ct.vercel.app
 
 ## Modes
 
@@ -61,7 +61,7 @@ To run it locally, serve the folder with any static server. For example:
 python -m http.server
 ```
 
-Every push to `main` deploys automatically to https://ratio-fighters.vercel.app through Vercel.
+Every push to `main` deploys automatically to https://ng-ct.vercel.app through Vercel.
 
 ## Credits
 
